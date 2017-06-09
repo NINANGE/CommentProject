@@ -1,0 +1,7 @@
+settings.py
+*.pyc
+*.log
+*.txt
+db.sqlite3
+migrations/
+.idea/
