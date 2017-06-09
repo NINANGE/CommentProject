@@ -62,7 +62,6 @@ def getAll_DetailDatas(ItemIDS):
 
     res = session.query(table_schema).filter(table_schema.columns.ItemID==ItemIDS).all()
 
-    print len(res)
 
     #断开连接
     session.close()
@@ -83,14 +82,13 @@ def getAll_PinLuns(ItemNames,TreasureIDs):
     return res
 
 
-#测试速度
+#sql
 class Mssql:
     def __init__(self):
         self.host = '192.168.1.253:1433'
         self.user = 'bs-prt'
         self.pwd = '123123'
         self.db = 'Collectiondb'
-        print "***********5555555************"
 
     def __get_connect(self):
         if not self.db:
@@ -117,7 +115,6 @@ class Mssql:
                     print str(id),NickName
         """
         cur = self.__get_connect()
-        print 'get conn'
         cur.execute(sql)
         res_list = cur.fetchall()
 
@@ -133,16 +130,10 @@ class Mssql:
             self.conn.commit()
             self.conn.close()
         """
-        print "***********5555555---1111111************%s"%sql
         cur = self.__get_connect()
 
-        print "***********5555555---1111111*****99999*******"
+        cur.execute(sql)
 
-        try:
-            cur.execute(sql)
-        except Exception as e:
-            print e
-        print "***********5555555---1111111************"
         self.conn.commit()
         self.conn.close()
 
@@ -159,7 +150,6 @@ class Mssql:
             cur.executemany(sql, param)
             self.conn.commit()
         except Exception as e:
-            print e
             self.conn.rollback()
 
         self.conn.close()
@@ -170,12 +160,9 @@ def getAll_Data(creator):
 
     sql_text = "select * from T_Treasure_EvalCustomItem where Creator='%s'" % (creator.encode('utf8'))
 
-    print '****************99999999999*******************666666'
 
     res = conn.exec_query(sql_text)
-    # print '****************99999999999*******************%s'%res
     if len(res) > 0:
-        # print '****************%s'%res
         return res
     else:
         return False
@@ -183,18 +170,10 @@ def getAll_Data(creator):
 
 def getAll_DetailData(ItemIDS):
 
-    # engine,connection,table_schema = initConnect("T_Treasure_EvalCustomItem_Detail")
-
     conn = Mssql()
-
     sql_text = "select * from T_Treasure_EvalCustomItem_Detail where ItemID='%s'"%(ItemIDS.encode('utf-8'))
-
     res = conn.exec_query(sql_text)
-
-    # print '****************1010101010*******************%s' % res
-
     return res
-
 
 def getAll_PinLun(ItemNames,TreasureIDs):
 
@@ -204,42 +183,7 @@ def getAll_PinLun(ItemNames,TreasureIDs):
 
     res = conn.exec_query(sql_text)
 
-    print '****************10101010102*******************%s' % res
-
     return res
-
-
-#增
-# def add_Data(ItemNames,Validitys,IDs):
-#
-#     conn = Mssql()
-#
-#     sql_text = "insert into T_Treasure_EvalCustomItem values ('%s','%s','%s')" % \
-#                (ItemNames.encode('utf8'),
-#                 Validitys.encode('utf8'),
-#                 IDs.encode('utf8'),
-#                 )
-#      conn.exec_non_query(sql_text)
-#
-#
-#
-#
-#
-#
-#
-#     return tasks
-#
-#
-# def add_item_struct(data):
-#     conn = Mssql()
-#     sql_text = "insert into T_Data_ItemStructTemp values ('%s','%s','%s','%s','%s','%s')" % \
-#                (data[0].encode('utf8'),
-#                 data[1].encode('utf8'),
-#                 data[2].encode('utf8'),
-#                 data[3].encode('utf8'),
-#                 data[4].encode('utf8'),
-#                 data[5].encode('utf8'))
-#     conn.exec_non_query(sql_text)
 
 
 

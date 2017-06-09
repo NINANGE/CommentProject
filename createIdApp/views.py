@@ -22,19 +22,11 @@ def createPros(request):
     if request.method == 'POST':
 
         ItemName = request.POST.get('ItemName')
-        # print type(str(ItemName))
         Validity = request.POST.get('Validity')
         ID = request.POST.get('ID')
         ItemID = uuid.uuid1()
         createTime = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
         creator = request.POST.get('Creator')
-
-        # engine, connection, table_schema = initConnect('T_Treasure_EvalCustomItem')
-        # # 创建session
-        # Session = sessionmaker(bind=engine)
-        # session = Session()
-
-
 
         if len(creator) == 0:
             creators = 'test'
@@ -42,27 +34,12 @@ def createPros(request):
             creators = creator
 
 
-        # connection.execute(table_schema.insert(),[{
-        #     "ID":ID, "ItemID":ItemID ,'ItemName':ItemName,"Validity":Validity,"CreateTime":createTime,
-        #     "ModifyTime":createTime,"Creator":creators
-        #
-        # }])
-
         conn = Mssql()
-        # print '**************************测试中1'
+
         sql_text = "insert into T_Treasure_EvalCustomItem values ('%s','%s','%s','%d','%d','%s','%s','%d','%s','%s')" % (
             ID, ItemID, ItemName, int(Validity), 1, createTime, '', 1, '', creators)
-        print sql_text
-        print '**************************测试中2'
+
         conn.exec_non_query(sql_text)
-
-
-
-
-        # session.commit()
-        # # 关闭session:
-        # session.close()
-        # connection.close()
 
         #跨域问题需要
         response= HttpResponse(json.dumps({'info':'OK'},cls=DateEncoder), content_type="application/json")
@@ -77,34 +54,17 @@ def createPros(request):
     else:
         allData = []
         name = request.GET.get('Creator')
-        print '**********8888888888***********%s' % name
         res = getAll_Data(name)
 
-        print '**********10101010101010***********%s' % type(res)
 
         if len(res) == 0:
-            print '**********10101010101010121212***********%s'
             return {'Data':'','Creator': ''}
         else:
 
             for data in res:
-                print '**********10101010101010121212***********666666666%s'%list(data)[0]
                 datas = list(data)
                 content = {}
                 content['id'] = datas[0]
-                # content['ItemID'] = str(data.ItemID)
-                # content['name'] = data.ItemName
-                # content['Validity'] = data.Validity
-                # content['ItemStatus'] = data.ItemStatus
-                # content['CreateTime'] = data.CreateTime
-                # content['Trailer_Tips'] = data.Trailer_Tips
-                # content['PollCount'] = data.PollCount
-                # content['ModifyTime'] = data.ModifyTime
-                # # content['SkuModifyTime'] = data.SkuModifyTime
-                #
-                # content['Creator'] = data.Creator
-
-
                 content['id'] = datas[0]
                 content['ItemID'] = str(datas[1])
                 content['name'] = datas[2]
@@ -157,7 +117,6 @@ def lsedit_projects(request):
         if len(res) == 0:
             return all_detailData
         for data in res:
-            print '**********10101010101010121212***********66666666666666666'
             datas = list(data)
             content = {}
 
@@ -191,9 +150,7 @@ def lsedit_projects(request):
             content['ShortName'] = datas[27]
             content['shopID'] = datas[28]
 
-            print '**********10101010101010121212***********66666666666666666%s'%(str(datas[1]))
             all_detailData.append(content)
-
 
 
         response = HttpResponse(json.dumps(all_detailData, cls=DateEncoder), content_type="application/json")
@@ -201,12 +158,11 @@ def lsedit_projects(request):
         response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
         response["Access-Control-Max-Age"] = "1000"
         response["Access-Control-Allow-Headers"] = "*"
-        print "***************"
         return response
 
     else:
-
         return HttpResponseRedirect('/')
+
 #全部宝贝评论
 def lsAll_PinLun(request):
     if request.method == 'GET':
