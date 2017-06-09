@@ -22,7 +22,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = [
     url(r'^createPros', views.createPros, name='createPros'),
-    url(r'^lsedit_projects/',views.lsedit_projects,name='lsedit_projects'),
+    url(r'^lsedit_projects',views.lsedit_projects,name='lsedit_projects'),
     url(r'^lsAll_PinLun',views.lsAll_PinLun,name='lsAll_PinLun'),
     url(r'^lsDelete_data$',views.lsDelete_data,name='lsDelete_data'),
 ]

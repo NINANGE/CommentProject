@@ -112,14 +112,23 @@ def lsDelete_data(request):
 def lsedit_projects(request):
     if request.method == 'GET':
         ItemID = request.GET.get('ItemID')
+
+        babyID = request.GET.get('babyID')
         res = getAll_DetailData(ItemID)
         all_detailData = []
         if len(res) == 0:
-            return all_detailData
+            print '***************%d'%len(res)
+            all_detailData.append({'babyID':babyID})
+            response = HttpResponse(json.dumps(all_detailData, cls=DateEncoder), content_type="application/json")
+            response["Access-Control-Allow-Origin"] = "*"
+            response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
+            response["Access-Control-Max-Age"] = "1000"
+            response["Access-Control-Allow-Headers"] = "*"
+            return response
         for data in res:
             datas = list(data)
             content = {}
-
+            content['babyID'] = babyID
             content['id'] = datas[0]
             content['ItemID'] = str(datas[1])
             content['TreasureID'] = datas[2]
