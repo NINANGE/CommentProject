@@ -21,25 +21,51 @@ def createPros(request):
 
     if request.method == 'POST':
 
-        ItemName = request.POST.get('ItemName')
-        Validity = request.POST.get('Validity')
-        ID = request.POST.get('ID')
-        ItemID = uuid.uuid1()
-        createTime = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+        # ItemName = request.POST.get('ItemName')
+        # Validity = request.POST.get('Validity')
+        # ID = request.POST.get('ID')
+
+        Datas = request.POST.get('Datas')
+
+        datas = json.loads(Datas)
+
+
+        createTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
         creator = request.POST.get('Creator')
 
-        if len(creator) == 0:
-            creators = 'test'
-        else:
-            creators = creator
+        res = {}
+        sameData = []
+        for data in datas:
 
+            if data['name'] not in res.keys():
+                res[data['name']] = list()
+                res[data['name']].append(data)
+            else:
+                res[data['name']].append(data)
+        for k, v in res.items():
+            ItemID = uuid.uuid1()
+            insert_data = []
+            for d in v:
+                # print d.values() #一次性打印出v中value值
+                sameData = []
+                sameData.append(ItemID)
+                sameData.append(d['name'])
+                sameData.append(int(d['days']))
+                sameData.append(d['IDs'])
+                sameData.append('')
+                sameData.append(createTime)
+                sameData.append('')
+                sameData.append('')
+                sameData.append('')
+                sameData.append(creator)
+                insert_data.append(sameData)
 
-        conn = Mssql()
+            conn = Mssql()
+            # sql_text = "insert into T_Treasure_EvalCustomItem values ('%s','%s','%d','%d','%s','%s','%d','%s','%s')"
+            conn.exec_one_by_one_query('', insert_data)
 
-        sql_text = "insert into T_Treasure_EvalCustomItem values ('%s','%s','%s','%d','%d','%s','%s','%d','%s','%s')" % (
-            ID, ItemID, ItemName, int(Validity), 1, createTime, '', 1, '', creators)
-
-        conn.exec_non_query(sql_text)
+            sql_text = "insert into T_Treasure_EvalCustomItem values ('%s','%s','%d','%d','%s','%s','%d','%s','%s')" % (ItemID,v[0]['name'],int(v[0]['days']),1,createTime,'',1,'',creator)
+            conn.exec_non_query(sql_text)
 
         #跨域问题需要
         response= HttpResponse(json.dumps({'info':'OK'},cls=DateEncoder), content_type="application/json")
@@ -114,10 +140,12 @@ def lsedit_projects(request):
         ItemID = request.GET.get('ItemID')
 
         babyID = request.GET.get('babyID')
+
         res = getAll_DetailData(ItemID)
+
+
         all_detailData = []
         if len(res) == 0:
-            print '***************%d'%len(res)
             all_detailData.append({'babyID':babyID})
             response = HttpResponse(json.dumps(all_detailData, cls=DateEncoder), content_type="application/json")
             response["Access-Control-Allow-Origin"] = "*"
@@ -139,7 +167,7 @@ def lsedit_projects(request):
             content['Treasure_Status'] = datas[7]
             content['Monthly_volume'] = datas[8]
             content['IsMerge'] = datas[9]
-            content['MergeGuid'] = datas[10]
+            content['MergeGuid'] = None
             content['Category_Name'] = datas[11]
             content['GrpName'] = datas[12]
             content['spuId'] = datas[13]

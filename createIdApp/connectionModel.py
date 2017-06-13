@@ -5,6 +5,12 @@ from sqlalchemy.pool import NullPool
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine,bindparam,and_,or_
 import pymssql
+import uuid
+
+import sys
+
+reload(sys)
+sys.setdefaultencoding( "utf-8" )
 
 def initConnect(tableName):
     #create_engine 方法进行数据库连接，返回一个 db 对象。
@@ -148,11 +154,36 @@ class Mssql:
         cur = self.__get_connect()
         try:
             cur.executemany(sql, param)
+
             self.conn.commit()
         except Exception as e:
             self.conn.rollback()
 
         self.conn.close()
+
+    def exec_one_by_one_query(self, sql, param):
+        """
+        execute the query without return list, example：
+            cur = self.__GetConnect()
+            cur.execute(sql)
+            self.conn.commit()
+            self.conn.close()
+        """
+        cur = self.__get_connect()
+
+        for i in param:
+            sql_text = "insert into T_Treasure_EvalCustomItem_Detail values ('%s','%s','%s','%s','%s','%d','%d','%d','%s','%s','%s','%s','%s','%d','%s','%s','%s','%d','%s','%s','%d','%s','%d','%s','%s','%s','%s','%s')" %\
+                       (i[0],i[3],' ',' ',' ',1,1,1,' ',uuid.uuid1(),' ',' ',' ',1,' ',' ',' ',1.0,' ',' ',1.0,' ',1,i[1],' ',' ',' ',' ')
+            try:
+                cur.execute(sql_text)
+                self.conn.commit()
+            except Exception as e:
+                print e
+                self.conn.rollback()
+
+        self.conn.close()
+
+
 
 def getAll_Data(creator):
 
@@ -171,8 +202,11 @@ def getAll_Data(creator):
 def getAll_DetailData(ItemIDS):
 
     conn = Mssql()
-    sql_text = "select * from T_Treasure_EvalCustomItem_Detail where ItemID='%s'"%(ItemIDS.encode('utf-8'))
+
+    sql_text = "select * from T_Treasure_EvalCustomItem_Detail where ItemID='%s'"%(ItemIDS)
+
     res = conn.exec_query(sql_text)
+
     return res
 
 def getAll_PinLun(ItemNames,TreasureIDs):
